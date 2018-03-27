@@ -1,0 +1,121 @@
+﻿Vimport java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+ 
+/**
+* Title: Test.java
+* Description: 
+* Copyright: Copyright (c) 2007
+* Company: YanJing.HangZhou
+* @author alves
+* @date 2017骞�7鏈�18鏃�,涓嬪崍12:22:22
+* @version 1.0
+*/
+public class Test {
+
+	public static void main(String[] args) throws Exception {
+		 String resMessage=Test.get("http://api.map.baidu.com/geocoder/v2/?location=39.883424,116.322987&output=json&pois=1&ak=f6OP3agHsFQzwG9wcAu2634SF3Xyp6YD");
+		//String resMessage = Test.post("http://localhost:3000/hello", "hello=hello post");
+		System.out.println(resMessage);
+		//JSONObject jsonObject = JSONObject.fromObject("json格式的字符串");
+		//String jsonStr = "{id:2}";
+		JSONObject json = JSONObject.fromObject(resMessage);
+		
+		String status = ""+json.get("status");
+		
+		JSONObject j = json.getJSONObject("result");
+		JSONObject js = j.getJSONObject("addressComponent");
+		
+		
+		
+		System.out.println(j.get("formatted_address"));
+		System.out.println(js.get("province"));
+		System.out.println(js.get("city"));
+		System.out.println(js.get("district"));
+		System.out.println(js.get("street"));
+		System.out.println(js.get("street_number"));
+		
+		
+		
+
+}
+
+
+	//鍙戦�佷竴涓狦ET璇锋眰
+		public static String get(String path) throws Exception {
+			HttpURLConnection httpConn = null;
+			BufferedReader in = null;
+			try {
+				URL url = new URL(path);
+				httpConn = (HttpURLConnection) url.openConnection();
+
+				   //璇诲彇鍝嶅簲
+				if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+					StringBuffer content = new StringBuffer();
+					String tempStr = "";
+					in = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+					while ((tempStr = in.readLine()) != null) {
+						content.append(tempStr);
+					}
+					return content.toString();
+				} else {
+					throw new Exception("璇锋眰鍑虹幇浜嗛棶棰�!");
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				in.close();
+				httpConn.disconnect();
+			}
+			return null;
+		}
+
+		//鍙戦�佷竴涓狿OST璇锋眰,鍙傛暟褰㈠紡key1=value1&key2=value2...
+		public static String post(String path, String params) throws Exception {
+			HttpURLConnection httpConn = null;
+			BufferedReader in = null;
+			PrintWriter out = null;
+			try {
+				URL url = new URL(path);
+				httpConn = (HttpURLConnection) url.openConnection();
+				httpConn.setRequestMethod("POST");
+				httpConn.setDoInput(true);
+				httpConn.setDoOutput(true);
+
+				   //鍙戦�乸ost璇锋眰鍙傛暟
+				   out=new PrintWriter(httpConn.getOutputStream());
+				   out.println(params);
+				   out.flush();
+
+				   //璇诲彇鍝嶅簲
+				if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+					StringBuffer content = new StringBuffer();
+					String tempStr = "";
+					in = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+					while ((tempStr = in.readLine()) != null) {
+						content.append(tempStr);
+					}
+					return content.toString();
+				} else {
+				    throw new Exception("璇锋眰鍑虹幇浜嗛棶棰�!");
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				in.close();
+				out.close();
+				httpConn.disconnect();
+			}
+			return null;
+		}
+
+
+
+}
